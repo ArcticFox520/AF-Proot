@@ -1,3 +1,15 @@
 #!/bin/env bash
+Path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+source ${Path}/function
 bash package
 bash main
+ConfigPath="${Path}/config.json"
+Linux="$(jq -r .Linux ${ConfigPath})"
+Version="$(jq -r .Version ${ConfigPath})"
+Arch="$(jq -r .Arch ${ConfigPath})"
+Variant="$(jq -r .Variant ${ConfigPath})"
+FOLDER="${Linux}-${Version}"
+cp ${Path}/LxOpt $HOME/AF-Proot/${FOLDER}/tmp/LxOpt
+cp ${Path}/function $HOME/AF-Proot/${FOLDER}/tmp/function
+bash $HOME/AF-Proot/start-${Linux}-${Version}.sh \
+ "bash /tmp/LxOpt && rm /tmp/LxOpt && rm /tmp/function"

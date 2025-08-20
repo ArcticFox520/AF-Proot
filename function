@@ -99,27 +99,43 @@ case "$num" in
     return 0
 esac
 }
-Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/json)
-if [ -n "${Json}" ]
+if [ -x "$(command -v jq)" ]
 then
-  if ! echo "${Json}" | grep -q error
+  Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/json)
+  if [ -n "${Json}" ]
   then
-    if echo "${Json}" | jq -r .country | grep -q "CN"; then
-      return 0
-    else
-      return 1
+    if ! echo "${Json}" | grep -q error
+    then
+      if echo "${Json}" | jq -r .country | grep -q "CN"; then
+        return 0
+      else
+        return 1
+      fi
     fi
   fi
-fi
-Json=$(curl -sL --connect-timeout 5 --max-time 10 ip-api.com/json)
-if [ -n "${Json}" ]
-then
-  if ! echo "${Json}" | grep -q fail
+  Json=$(curl -sL --connect-timeout 5 --max-time 10 ip-api.com/json)
+  if [ -n "${Json}" ]
   then
-    if echo "${Json}" | jq -r .countryCode | grep -q "CN"; then
-      return 0
-    else
-      return 1
+    if ! echo "${Json}" | grep -q fail
+    then
+      if echo "${Json}" | jq -r .countryCode | grep -q "CN"; then
+        return 0
+      else
+        return 1
+      fi
+    fi
+  fi
+else
+  Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/country)
+  if [ -n "${Json}" ]
+  then
+    if ! echo "${Json}" | grep -q error
+    then
+      if echo "${Json}" | grep -q "CN"; then
+        return 0
+      else
+        return 1
+      fi
     fi
   fi
 fi
@@ -148,12 +164,12 @@ function gitCR(){
 gitClone(){
 if getLocation
 then
-  if ! git clone --depth=1 ${GHP}https://github.com/$1
+  if ! git clone --depth=1 --branch=$1 ${GHP}https://github.com/$2
   then
     returnError
   fi
 else
-  if ! git clone --depth=1 https://github.com/$1
+  if ! git clone --depth=1 --branch=$1 https://github.com/$2
   then
     returnError
   fi
@@ -173,10 +189,29 @@ else
   fi
 fi
 }
+gitRaw(){
+if getLocation
+then
+  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$5
+else
+  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$5
+fi
+}
 case $1 in
 clone)
-  gitClone $2;;
+  # $2: 用户名/仓库名
+  # $3: 分支名
+  gitClone $2 $3;;
 release)
+  # $2: 保存文件名
+  # $3: 用户名/仓库名
+  # $4: release文件名
   gitRelease $2 $3 $4;;
+raw)
+  # $2: 保存文件名
+  # $3 用户名/仓库名
+  # $4 分支名
+  # $5 文件路径
+  gitRaw $2 $3 $4 $5;;
 esac
 }

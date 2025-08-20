@@ -1,6 +1,8 @@
 #!/bin/env bash
-source "$(dirname "${BASH_SOURCE[0]}")./function"
-Package=("tar" "gzip" "xz-utils" "unzip" "wget" "curl" "pv" "git" "jq")
+Path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+source ${Path}/function
+
+Package=("tar" "gzip" "xz-utils" "unzip" "wget" "curl" "pv" "git" "jq" "proot")
 if getLocation
 then
   echo '
