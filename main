@@ -56,7 +56,7 @@ fi
 if [ ! -d Proc ]
 then
   mkdir Proc
-  gitCR release ArcticFox520/AF-Proot ProotProc.tar.xz
+  gitCR release ProotProc.tar.xz ArcticFox520/AF-Proot ProotProc.tar.xz
   log.info "开始解压 ProotProc.tar.xz"
   if pv ProotProc.tar.xz | tar -xJf - -C Proc
   then
