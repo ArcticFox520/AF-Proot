@@ -9,7 +9,7 @@ Version="$(jq -r .Version ${ConfigPath})"
 Arch="$(jq -r .Arch ${ConfigPath})"
 Variant="$(jq -r .Variant ${ConfigPath})"
 FOLDER="${Linux}-${Version}"
-cp ${Path}/LxOpt $HOME/AF-Proot/${FOLDER}/tmp/LxOpt
+cp ${Path}/LxOpt $HOME/AF-Proot/${FOLDER}/tmp/opt
 cp ${Path}/function $HOME/AF-Proot/${FOLDER}/tmp/function
 bash $HOME/AF-Proot/start-${Linux}-${Version}.sh \
- "bash /tmp/LxOpt && rm /tmp/LxOpt && rm /tmp/function"
+ "bash /tmp/opt && rm /tmp/opt && rm /tmp/function"

@@ -160,9 +160,9 @@ command+=" /bin/bash --login"
 
 echo ${command} > start-${Linux}-${Version}.sh
 touch $HOME/AF-Proot/${FOLDER}/root/.hushlogin
+echo cat /etc/issue.net >> $HOME/AF-Proot/${FOLDER}/etc/profile
 cat > start-${Linux}-${Version}.sh <<- FOX
 unset LD_PRELOAD
-cat /etc/issue.net
 com="$@"
 if [ -z "\$1" ]
 then
@@ -171,4 +171,5 @@ else
     ${command} -c "\${com}"
 fi
 FOX
+chmod +x start-${Linux}-${Version}.sh
 log.info "容器构建完成"
