@@ -1,0 +1,89 @@
+#!/bin/env bash
+black="\e[30m"
+red="\033[31m"
+green="\033[32m"
+yellow="\033[33m"
+blue="\033[34m"
+purple="\033[35m"
+cyan="\033[36m"
+white="\033[37m"
+background="\033[0m"
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+function log.info(){
+    local timestamp=$(date +"%H:%M:%S")
+    echo -e "${BLUE}[INFO][${timestamp}] - $1${NC}"
+}
+function log.success(){
+    local timestamp=$(date +"%H:%M:%S")
+    echo -e "${GREEN}[SUCCESS][${timestamp}] - $1${NC}"
+}
+function log.warn(){
+    local timestamp=$(date +"%H:%M:%S")
+    echo -e "${YELLOW}[WARN][${timestamp}] - $1${NC}"
+}
+function log.error(){
+    local timestamp=$(date +"%H:%M:%S")
+    echo -e "${RED}[ERROR][${timestamp}] - $1${NC}" >&2
+}
+function getLocation(){
+selectLocation(){
+echo
+echo -en "
+ ———————————————————
+ ${cyan}请问您的设备所在位置是? 
+    ${green}1${white}. 中国大陆 ${background}
+    ${green}2${white}. 其他位置 ${background}
+ ———————————————————
+ ${cyan}请输入数字 ${white}[1-2]: ${background}"
+read num
+case "$num" in
+  1)
+    return 0;;
+  2)
+    return 1;;
+  *)
+    log.warn "输入错误 保持默认 中国大陆"
+    return 0
+esac
+}
+Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/country)
+if [ -n "${Json}" ]
+then
+  if ! echo "${Json}" | grep -q error
+  then
+    if echo "${Json}" | grep -q "CN"; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+fi
+Json=$(curl -sL --connect-timeout 5 --max-time 10 ip-api.com/countryCode)
+if [ -n "${Json}" ]
+then
+  if ! echo "${Json}" | grep -q fail
+  then
+    if echo "${Json}" | jq -r .countryCode | grep -q "CN"; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+fi
+selectLocation
+local result=$?
+return ${result}
+}
+
+if getLocation
+then
+  export LX_LANGUAGE="zh-cn"
+else
+  export LX_LANGUAGE="en-us"
+fi
+
+source 
