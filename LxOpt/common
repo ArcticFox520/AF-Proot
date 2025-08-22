@@ -1,0 +1,37 @@
+#!/bin/env bash
+setDNS(){
+  rm -f /etc/resolv.conf > /dev/null 2>&1
+  if getLocation
+  then
+    echo 'nameserver 223.5.5.5
+nameserver 223.6.6.6
+nameserver 2400:3200::1
+nameserver 2400:3200:baba::1' > /etc/resolv.conf
+  else
+    echo 'nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1111
+nameserver 2606:4700:4700::1001' > /etc/resolv.conf
+  fi
+}
+setFont(){
+  gitCR raw SourceHanSerif.ttc adobe-fonts/source-han-serif release OTC/SourceHanSerif-SemiBold.ttc
+  if [ ! -d /usr/local/share/fonts ]
+  then
+    mkdir -p /usr/local/share/fonts
+  fi
+  mv SourceHanSerif.ttc /usr/local/share/fonts/SourceHanSerif.ttc
+  fc-cache -f
+  locale-gen zh_CN.UTF-8
+  rm /etc/default/locale
+  echo -e "LANG=zh_CN.UTF-8\nLANGUAGE=zh_CN:zh\nLC_ALL=zh_CN.UTF-8" > /etc/locale.conf
+  ln -s /etc/locale.conf /etc/default/locale
+}
+setTimeZone(){
+  if [ -e /etc/timezone ]
+  then
+    echo "Asia/Shanghai" > /etc/timezone
+  fi
+  rm -f /etc/localtime > /dev/null 2>&1
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+}

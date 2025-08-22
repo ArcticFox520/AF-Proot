@@ -15,20 +15,20 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 export GHP="https://gh.arcticfox.top/"
 function log.info(){
-    local timestamp=$(date +"%H:%M:%S")
-    echo -e "${BLUE}[INFO][${timestamp}] - $1${NC}"
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${BLUE}[INFO][${timestamp}] - $1${NC}"
 }
 function log.success(){
-    local timestamp=$(date +"%H:%M:%S")
-    echo -e "${GREEN}[SUCCESS][${timestamp}] - $1${NC}"
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${GREEN}[SUCCESS][${timestamp}] - $1${NC}"
 }
 function log.warn(){
-    local timestamp=$(date +"%H:%M:%S")
-    echo -e "${YELLOW}[WARN][${timestamp}] - $1${NC}"
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${YELLOW}[WARN][${timestamp}] - $1${NC}"
 }
 function log.error(){
-    local timestamp=$(date +"%H:%M:%S")
-    echo -e "${RED}[ERROR][${timestamp}] - $1${NC}" >&2
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${RED}[ERROR][${timestamp}] - $1${NC}" >&2
 }
 function IncrCounter(){
   if [ -z ${count} ]
@@ -61,15 +61,19 @@ Download(){
   log.success "下载完成"
   return 0
 }
-if $(command -v wget > /dev/null 2>&1) && $(wget --help | grep -q show-progress)
+if $(type wget > /dev/null 2>&1) && $(wget --help 2>&1 | grep -q show-progress)
 then
   Command="wget --quiet --show-progress --output-document="${file}" --continue "${URL}""
   Download
-elif $(command -v curl > /dev/null 2>&1) && $(curl --help all | grep -q progress-bar)
+elif $(type curl > /dev/null 2>&1) && $(curl --help all 2>&1 | grep -q progress-bar)
 then
   Command="curl --output "${file}" --progress-bar --location --continue-at - "${URL}""
   Download
-elif $(command -v wget > /dev/null 2>&1)
+elif $(type curl > /dev/null 2>&1)
+then
+  Command="curl --output "${file}" --continue-at - "${URL}""
+  Download
+elif $(type wget > /dev/null 2>&1)
 then
   Command="wget --output-document="${file}" --continue "${URL}""
   Download
@@ -78,8 +82,10 @@ else
   return 1
 fi
 }
-function getLocation(){
-selectLocation(){
+function selectLocation(){
+if [ -n ${LOCATION} ];then
+  return 0
+fi
 echo
 echo -en "
  ———————————————————
@@ -91,6 +97,7 @@ echo -en "
 read num
 case "$num" in
   1)
+    export LOCATION=CN
     return 0;;
   2)
     return 1;;
@@ -99,6 +106,7 @@ case "$num" in
     return 0
 esac
 }
+function getLocation(){
 if [ -x "$(command -v jq)" ]
 then
   Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/json)
@@ -106,7 +114,19 @@ then
   then
     if ! echo "${Json}" | grep -q error
     then
-      if echo "${Json}" | jq -r .country | grep -q "CN"; then
+      if echo "${Json}" | jq -r .country | grep -q "CN";then
+        return 0
+      else
+        return 1
+      fi
+    fi
+  fi
+  Json=$(curl -sL --connect-timeout 5 --max-time 10 ipapi.co/json)
+  if [ -n "${Json}" ]
+  then
+    if ! echo "${Json}" | grep -q error
+    then
+      if echo "${Json}" | jq -r .country | grep -q "CN";then
         return 0
       else
         return 1
@@ -118,7 +138,7 @@ then
   then
     if ! echo "${Json}" | grep -q fail
     then
-      if echo "${Json}" | jq -r .countryCode | grep -q "CN"; then
+      if echo "${Json}" | jq -r .countryCode | grep -q "CN";then
         return 0
       else
         return 1
@@ -126,23 +146,47 @@ then
     fi
   fi
 else
-  Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/country)
-  if [ -n "${Json}" ]
+  if [ -x "$(command -v curl)" ]
   then
-    if ! echo "${Json}" | grep -q error
+    Json=$(curl -sL --connect-timeout 5 --max-time 10 ipinfo.io/country)
+    if [ -n "${Json}" ]
     then
-      if echo "${Json}" | grep -q "CN"; then
-        return 0
+      if echo "${Json}" | grep -q error
+      then
+        selectLocation
+        local result=$?
+        return ${result}
       else
-        return 1
+        if echo "${Json}" | grep -q "CN";then
+          return 0
+        else
+          return 1
+        fi
       fi
     fi
+    Json=$(curl -sL --connect-timeout 5 --max-time 10 ipapi.co/country)
+    if [ -n "${Json}" ];then
+      if echo "${Json}" | grep -q error
+      then
+        selectLocation
+        local result=$?
+        return ${result}
+      else
+        if echo "${Json}" | grep -q "CN";then
+          return 0
+        else
+          return 1
+        fi
+      fi
+    fi
+  else
+    selectLocation
+    local result=$?
+    return ${result}
   fi
 fi
-selectLocation
-local result=$?
-return ${result}
 }
+
 function getArchitecture(){
   local machine=$(uname -m)
   case $machine in
@@ -192,15 +236,15 @@ fi
 gitRaw(){
 if getLocation
 then
-  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$5
+  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$4
 else
-  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$5
+  getFile $1 ${GHP}https://github.com/$2/raw/refs/heads/$3/$4
 fi
 }
 case $1 in
 clone)
-  # $2: 用户名/仓库名
-  # $3: 分支名
+  # $2: 分支名
+  # $3: 用户名/仓库名
   gitClone $2 $3;;
 release)
   # $2: 保存文件名

@@ -1,0 +1,66 @@
+#!/bin/env bash
+Path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+source ${Path}/function
+source ${Path}/common
+
+log.info "正在配置 DNS"
+setDNS
+log.success "配置完成"
+
+log.info "正在切换 软件源"
+if getLocation
+then
+  OldSource="ports.ubuntu.com"
+  NewSource="mirrors.cernet.edu.cn"
+else
+  OldSource="ports.ubuntu.com"
+  NewSource="ports.ubuntu.com"
+fi
+sed -i "s|${OldSource}|${NewSource}|g" /etc/apt/sources.list
+log.success "切换完成"
+
+log.info "正在更新 软件源"
+apt update -y
+log.success "更新完成"
+log.info "正在更新 软件包"
+apt upgrade -y
+log.success "更新完成"
+log.info "正在更新 系统整体"
+apt full-upgrade -y
+log.success "更新完成"
+
+log.info "正在安装 cURL"
+apt install -y curl
+log.success "安装完成"
+
+log.info "正在设置 中文环境"
+apt install -y fontconfig language-pack-zh-*
+setFont
+log.success "设置完成"
+
+log.info "正在设置 时区 "
+setTimeZone
+log.success "设置完成"
+
+if dpkg -s ca-certificates > /dev/null 2>&1
+then
+  log.info "正在更新 CA证书"
+  update-ca-certificates
+  log.success "更新完成"
+else
+  log.info "正在安装 CA证书"
+  apt reinstall -y ca-certificates
+  update-ca-certificates
+  log.success "安装完成"
+fi
+
+log.info "正在切换 https"
+if ! grep -q https /etc/apt/sources.list
+then
+  sed -i "s|https|http|g" /etc/apt/sources.list
+fi
+apt update -y
+log.success "切换完成"
+
+rm ${Path}/function
+rm ${Path}/common

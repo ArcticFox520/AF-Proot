@@ -10,7 +10,7 @@ if [ ! -d $HOME/AF-Proot ];then
   mkdir AF-Proot
 fi
 cd $HOME/AF-Proot
-#详见 https://mirrors.cernet.edu.cn/lxc-images
+#详见 https://images.linuxcontainers.org
 ConfigPath="${Path}/config.json"
 Linux="$(jq -r .Linux ${ConfigPath})"
 Version="$(jq -r .Version ${ConfigPath})"
@@ -28,7 +28,6 @@ fi
 if getLocation
 then
   URL="https://mirrors.cernet.edu.cn/lxc-images/images/${Linux}/${Version}/${Arch}/${Variant}/"
-  echo $URL
   log.info "正在获取 构建日期"
   BuildDate=$(curl -sL ${URL} | grep 'class="link"><a href="' | grep -oE 'title="[^"]+"' | grep -oE '[^"]+' | tail -n 1)
   if [ -z ${BuildDate} ];then
@@ -156,19 +155,26 @@ command+=" HOME=/root"
 command+=" PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games"
 command+=" TERM=\$TERM"
 command+=" LANG=zh_CN.UTF-8"
-command+=" /bin/bash --login"
+case ${Linux} in
+alpine)
+    command+=" /bin/sh"
+  ;;
+*)
+    command+=" /bin/bash --login"
+  ;;
+esac
+
 
 echo ${command} > start-${Linux}-${Version}.sh
 touch $HOME/AF-Proot/${FOLDER}/root/.hushlogin
 echo cat /etc/issue.net >> $HOME/AF-Proot/${FOLDER}/etc/profile
 cat > start-${Linux}-${Version}.sh <<- FOX
 unset LD_PRELOAD
-com="$@"
 if [ -z "\$1" ]
 then
     exec ${command}
 else
-    ${command} -c "\${com}"
+    ${command} -c "\$@"
 fi
 FOX
 chmod +x start-${Linux}-${Version}.sh

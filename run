@@ -1,15 +1,41 @@
 #!/bin/env bash
 Path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 source ${Path}/function
-bash package
-bash main
+cd ${Path}
+# bash package
+# bash main
 ConfigPath="${Path}/config.json"
 Linux="$(jq -r .Linux ${ConfigPath})"
 Version="$(jq -r .Version ${ConfigPath})"
 Arch="$(jq -r .Arch ${ConfigPath})"
 Variant="$(jq -r .Variant ${ConfigPath})"
 FOLDER="${Linux}-${Version}"
-cp ${Path}/LxOpt $HOME/AF-Proot/${FOLDER}/tmp/opt
+cs(){
+cp ${Path}/LxOpt/${Linux} $HOME/AF-Proot/${FOLDER}/tmp/${Linux}
 cp ${Path}/function $HOME/AF-Proot/${FOLDER}/tmp/function
-bash $HOME/AF-Proot/start-${Linux}-${Version}.sh \
- "bash /tmp/opt && rm /tmp/opt && rm /tmp/function"
+cp ${Path}/LxOpt/common $HOME/AF-Proot/${FOLDER}/tmp/common
+chmod +x $HOME/AF-Proot/${FOLDER}/tmp/${Linux}
+}
+if [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/bash ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/bash ]
+then
+  Command="bash /tmp/${Linux} && rm /tmp/${Linux}"
+elif [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/sh ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/sh ]
+then
+  Command="sh /tmp/${Linux} && rm /tmp/${Linux}"
+else
+  Command="/tmp/${Linux} && rm /tmp/${Linux}"
+fi
+$HOME/AF-Proot/start-${Linux}-${Version}.sh \
+  "/tmp/${Linux} && rm /tmp/${Linux}"
+width=$(tput cols 2>/dev/null)
+printf "%0.s-" $(seq 1 $width)
+echo
+neofetch --ascii_distro ${Linux}
+width=$(tput cols 2>/dev/null)
+printf "%0.s-" $(seq 1 $width)
+echo
+echo -e ${blue}[${green}*${blue}] ${cyan}${Linux}-${Version} ${yellow}启动命令:${background}
+echo -e ${blue}[${green}*${blue}] ${purple}$HOME/AF-Proot/start-${Linux}-${Version}.sh${background}
+width=$(tput cols 2>/dev/null)
+printf "%0.s-" $(seq 1 $width)
+$HOME/AF-Proot/start-${Linux}-${Version}.sh

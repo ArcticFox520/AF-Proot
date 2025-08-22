@@ -1,2 +1,29 @@
 ### AF-Proot
 ---
+##### 适配进度
+- [ ] almalinux
+- [x] alpine
+- [ ] alt
+- [ ] amazonlinux
+- [ ] archlinux
+- [ ] busybox
+- [ ] centos
+- [x] debian
+- [ ] devuan
+- [ ] fedora
+- [ ] funtoo
+- [ ] gentoo
+- [ ] kali
+- [ ] mint
+- [ ] nixos
+- [ ] openeuler
+- [ ] opensuse
+- [ ] openwrt
+- [ ] oracle
+- [ ] plamo
+- [ ] rockylinux
+- [ ] slackware
+- [ ] springdalelinux
+- [x] ubuntu
+- [ ] voidlinux
+---
