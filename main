@@ -155,15 +155,15 @@ command+=" HOME=/root"
 command+=" PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games"
 command+=" TERM=\$TERM"
 command+=" LANG=zh_CN.UTF-8"
-case ${Linux} in
-alpine)
-    command+=" /bin/sh"
-  ;;
-*)
-    command+=" /bin/bash --login"
-  ;;
-esac
-
+if [ -e ${Linux}-${Version}/bin/bash ] || [ -e ${Linux}-${Version}/usr/bin/bash ]
+then
+  command+=" /bin/bash --login"
+elif [ -e ${Linux}-${Version}/bin/sh ] || [ -e ${Linux}-${Version}/usr/bin/sh ]
+then
+  command+=" /bin/bash --login"
+else
+  command+=" /bin/bash --login"
+fi
 
 echo ${command} > start-${Linux}-${Version}.sh
 touch $HOME/AF-Proot/${FOLDER}/root/.hushlogin
