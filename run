@@ -10,12 +10,10 @@ Version="$(jq -r .Version ${ConfigPath})"
 Arch="$(jq -r .Arch ${ConfigPath})"
 Variant="$(jq -r .Variant ${ConfigPath})"
 FOLDER="${Linux}-${Version}"
-cs(){
 cp ${Path}/LxOpt/${Linux} $HOME/AF-Proot/${FOLDER}/tmp/${Linux}
 cp ${Path}/function $HOME/AF-Proot/${FOLDER}/tmp/function
 cp ${Path}/LxOpt/common $HOME/AF-Proot/${FOLDER}/tmp/common
 chmod +x $HOME/AF-Proot/${FOLDER}/tmp/${Linux}
-}
 if [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/bash ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/bash ]
 then
   Command="bash /tmp/${Linux} && rm /tmp/${Linux}"
