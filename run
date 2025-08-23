@@ -36,7 +36,6 @@ $HOME/AF-Proot/start-${Linux}-${Version}.sh \
   "/tmp/${Linux} && rm /tmp/${Linux}"
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
-echo
 neofetch --ascii_distro ${Linux}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
@@ -46,7 +45,7 @@ echo -e ${blue}[${green}*${blue}] ${purple}$HOME/AF-Proot/start-${Linux}-${Versi
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
 echo
-if [ -n ${custom} ]
+if [ -n "${custom}" ]
 then
   log.info "正在执行自定义脚本"
   CustomPath=${custom}

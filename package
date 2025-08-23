@@ -20,7 +20,7 @@ fi
 log.info "正在更新 软件源列表"
 apt -y update
 log.info "更新完成"
-Package=("tar" "gzip" "xz-utils" "unzip" "wget" "curl" "pv" "git" "jq" "proot" "neofetch")
+Package=("tar" "gzip" "xz-utils" "unzip" "wget" "curl" "pv" "git" "jq" "proot" "neofetch" "ncurses-utils")
 for PKG in ${Package[@]}
 do
   if ! dpkg -s ${PKG} > /dev/null 2>&1
