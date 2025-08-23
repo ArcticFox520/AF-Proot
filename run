@@ -36,6 +36,7 @@ echo -e ${blue}[${green}*${blue}] ${cyan}${Linux}-${Version} ${yellow}启动命�
 echo -e ${blue}[${green}*${blue}] ${purple}$HOME/AF-Proot/start-${Linux}-${Version}.sh${background}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
+echo
 if [ -n ${custom} ]
 then
   log.info "正在执行自定义脚本"
