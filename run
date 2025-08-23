@@ -2,8 +2,8 @@
 Path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 source ${Path}/function
 cd ${Path}
-# bash package
-# bash main
+bash package
+bash main
 ConfigPath="${Path}/config.json"
 Linux="$(jq -r .Linux ${ConfigPath})"
 Version="$(jq -r .Version ${ConfigPath})"
@@ -36,4 +36,20 @@ echo -e ${blue}[${green}*${blue}] ${cyan}${Linux}-${Version} ${yellow}启动命�
 echo -e ${blue}[${green}*${blue}] ${purple}$HOME/AF-Proot/start-${Linux}-${Version}.sh${background}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
+if [ -n ${custom} ]
+then
+  log.info "正在执行自定义脚本"
+  CustomPath=${custom}
+  mv ${CustomShellPath} $HOME/AF-Proot/${FOLDER}/tmp/custom
+  if [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/bash ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/bash ]
+  then
+    Command="bash /tmp/custom && rm /tmp/custom"
+  elif [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/sh ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/sh ]
+  then
+    Command="sh /tmp/custom && rm /tmp/custom"
+  else
+    unset ${Command}
+  fi
+  $HOME/AF-Proot/start-${Linux}-${Version}.sh ${Command}
+fi
 $HOME/AF-Proot/start-${Linux}-${Version}.sh

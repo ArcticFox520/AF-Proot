@@ -7,6 +7,6 @@
 5. 安装cURL
 6. 设置中文环境(安装fontconfig)
 7. 设置时区
-8. 重新安装CA证书(ca-certificates)
+8. 安装/更新 CA证书(ca-certificates)
 9. 将软件源地址更换为https
 10. 更新软件源列表
