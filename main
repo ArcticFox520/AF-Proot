@@ -18,13 +18,6 @@ Arch="$(jq -r .Arch ${ConfigPath})"
 Variant="$(jq -r .Variant ${ConfigPath})"
 FOLDER="${Linux}-${Version}"
 
-if [ -d ${FOLDER} ]
-then
-  log.warn "${FOLDER} [已经部署]"
-  exit 0
-else
-  mkdir -p ${FOLDER}
-fi
 if getLocation
 then
   URL="https://mirrors.cernet.edu.cn/lxc-images/images/${Linux}/${Version}/${Arch}/${Variant}/"
@@ -71,9 +64,8 @@ then
     exit
   fi
 fi
-
 log.info "开始构建 容器启动脚本"
-command="proot"
+command="exec proot"
 command+=" --link2symlink"
 command+=" -0"
 command+=" -r $HOME/AF-Proot/${FOLDER}"
