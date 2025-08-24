@@ -1,6 +1,6 @@
 {
-  "Linux": "debian",
-  "Version": "bookworm",
+  "Linux": "ubuntu",
+  "Version": "noble",
   "Arch": "arm64",
   "Variant": "default"
 }

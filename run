@@ -49,7 +49,7 @@ if [ -n "${custom}" ]
 then
   log.info "正在执行自定义脚本"
   CustomPath=${custom}
-  mv ${CustomShellPath} $HOME/AF-Proot/${FOLDER}/tmp/custom
+  mv ${CustomPath} $HOME/AF-Proot/${FOLDER}/tmp/custom
   if [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/bash ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/bash ]
   then
     Command="bash /tmp/custom && rm /tmp/custom"
