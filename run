@@ -36,6 +36,7 @@ $HOME/AF-Proot/start-${Linux}-${Version}.sh \
   "/tmp/${Linux} && rm /tmp/${Linux}"
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
+echo
 neofetch --ascii_distro ${Linux}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
@@ -50,15 +51,7 @@ then
   log.info "正在执行自定义脚本"
   CustomPath=${custom}
   mv ${CustomPath} $HOME/AF-Proot/${FOLDER}/tmp/custom
-  if [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/bash ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/bash ]
-  then
-    Command="bash /tmp/custom && rm /tmp/custom"
-  elif [ -e $HOME/AF-Proot/${Linux}-${Version}/bin/sh ] || [ -e $HOME/AF-Proot/${Linux}-${Version}/usr/bin/sh ]
-  then
-    Command="sh /tmp/custom && rm /tmp/custom"
-  else
-    unset ${Command}
-  fi
-  $HOME/AF-Proot/start-${Linux}-${Version}.sh ${Command}
+  chmod +x $HOME/AF-Proot/${FOLDER}/tmp/custom
+  $HOME/AF-Proot/start-${Linux}-${Version}.sh "cd /tmp && ./custom"
 fi
 $HOME/AF-Proot/start-${Linux}-${Version}.sh
