@@ -148,9 +148,8 @@ case "$1" in
     fi
     
     log.info "准备安装: ${Linux}-${Version}"
-    echo "{\"Linux\": \"${Linux}\",\"Version\": \"${Version}\",\"Arch\": \"${Arch}\",\"Variant\": \"default\" }" > "$Path/config.json"
-    log.success "配置文件已生成，准备安装"
-    jq . $Path/config.json > "$Path/config.json"
+    echo "{\"Linux\": \"${Linux}\",\"Version\": \"${Version}\",\"Arch\": \"${Arch}\",\"Variant\": \"default\" }" | jq . > "$Path/config.json"
+    log.success "配置文件已生成，准备安装"    
     bash ${Path}/run
     ;;
   

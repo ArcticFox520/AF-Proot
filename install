@@ -171,3 +171,4 @@ else
   exit 1
 fi
 ln -sf $HOME/.afpt/start $PREFIX/bin/afpt
+chmod +x $PREFIX/bin/afpt
