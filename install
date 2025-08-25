@@ -162,8 +162,8 @@ do
   fi
 done
 
-log.info "正在克隆 AF-Proot-Tool"
-if gitCR clone ArcticFox520/AF-Proot-Tool $HOME/.afpt
+log.info "正在克隆 AF-Proot"
+if gitCR clone ArcticFox520/AF-Proot $HOME/.afpt
 then
   log.info "克隆成功"
 else
