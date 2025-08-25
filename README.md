@@ -1,29 +1,14 @@
-### AF-Proot
+### AF-Proot-Tool
 ---
 ##### 适配进度
-- [ ] almalinux
-- [x] alpine
-- [ ] alt
-- [ ] amazonlinux
-- [ ] archlinux
-- [ ] busybox
-- [ ] centos
-- [x] debian
-- [ ] devuan
-- [ ] fedora
-- [ ] funtoo
-- [ ] gentoo
-- [ ] kali
-- [ ] mint
-- [ ] nixos
-- [ ] openeuler
-- [ ] opensuse
-- [ ] openwrt
-- [ ] oracle
-- [ ] plamo
-- [ ] rockylinux
-- [ ] slackware
-- [ ] springdalelinux
-- [x] ubuntu
-- [ ] voidlinux
+- [x] Alpine Linux
+- [ ] Arch Linux
+- [x] Debian
+- [x] Ubuntu
+- [ ] Kali Linux
+- [ ] Mint Linux
+- [ ] Rocky Linux
+- [ ] CentOS-Stream
+- [ ] Fedora
+- [ ] OpenSUSE
 ---

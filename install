@@ -30,86 +30,6 @@ function log.error(){
   local timestamp=$(date +"%H:%M:%S")
   echo -e "${RED}[ERROR][${timestamp}] - $1${NC}" >&2
 }
-function IncrCounter(){
-  if [ -z ${count} ]
-  then
-    count=0
-  fi
-  ((count++))
-  case ${count} in
-    3)
-      count=0
-      return 1
-  esac
-  return 0
-}
-function getFile(){
-file="$1"
-URL="$2"
-Download(){
-  log.info "正在下载 ${file}"
-  until ${Command}
-  do
-    if ! IncrCounter
-    then
-      log.error "错误次数过多"
-      return 1
-    fi
-    log.warn "下载失败 三秒后重试"
-    sleep 3s
-  done
-  log.success "下载完成"
-  return 0
-}
-if $(type wget > /dev/null 2>&1) && $(wget --help 2>&1 | grep -q show-progress)
-then
-  Command="wget --quiet --show-progress --output-document="${file}" --continue "${URL}""
-  Download
-elif $(type curl > /dev/null 2>&1) && $(curl --help all 2>&1 | grep -q progress-bar)
-then
-  Command="curl --output "${file}" --progress-bar --location --continue-at - "${URL}""
-  Download
-elif $(type curl > /dev/null 2>&1)
-then
-  Command="curl --output "${file}" --continue-at - "${URL}""
-  Download
-elif $(type wget > /dev/null 2>&1)
-then
-  Command="wget --output-document="${file}" --continue "${URL}""
-  Download
-else
-  log.error "无下载器"
-  return 1
-fi
-}
-
-function selectLocation(){
-if [ -n "${LOCATION}" ]; then
-    return 0
-fi
-echo
-echo -e "———————————————————"
-echo -e " ${cyan}请问您的设备所在位置是? ${background}"
-echo -e " ${green}1${white}. 中国大陆 ${background}"
-echo -e " ${green}2${white}. 其他位置 ${background}"
-echo -e "———————————————————"
-echo -en " ${cyan}请输入数字 ${white}[1-2]: ${background}"
-echo -en " "${cyan}请输入数字 ${white}[1-2]: ${background}
-read num
-case "${num}" in
-  1)
-    export LOCATION=CN
-    return 0
-    ;;
-  2)
-    return 1
-    ;;
-  *)
-    log.warn "输入错误 保持默认 中国大陆"
-    return 0
-    ;;
-esac
-}
 function getLocation(){
 if [ -x "$(command -v jq)" ]
 then
@@ -151,35 +71,16 @@ else
   fi
 fi
 }
-
-function getArchitecture(){
-  local machine=$(uname -m)
-  case $machine in
-    x86_64|x64)
-      echo amd64
-      ;;
-    aarch64|arm64)
-      echo arm64
-      ;;
-    *)
-      log.error "不支持的架构"
-      log.warn "您的CPU为 $(uname -m)"
-      log.warn "请截图以便于开发者适配"
-      returnError
-      ;;
-  esac
-}
-
 function gitCR(){
 gitClone(){
 if getLocation
 then
-  if ! git clone --depth=1 --branch=$1 ${GHP}https://github.com/$2
+  if ! git clone --depth=1 --branch=$1 ${GHP}https://github.com/$2 $3
   then
     returnError
   fi
 else
-  if ! git clone --depth=1 --branch=$1 https://github.com/$2
+  if ! git clone --depth=1 --branch=$1 https://github.com/$2 $3
   then
     returnError
   fi
@@ -211,7 +112,8 @@ case $1 in
 clone)
   # $2: 分支名
   # $3: 用户名/仓库名
-  gitClone $2 $3;;
+  # $4: 本地仓库名
+  gitClone $2 $3 $4;;
 release)
   # $2: 保存文件名
   # $3: 用户名/仓库名
@@ -225,3 +127,47 @@ raw)
   gitRaw $2 $3 $4 $5;;
 esac
 }
+
+if getLocation
+then
+  echo '
+# The termux repository mirror
+deb https://mirrors.cernet.edu.cn/termux/apt/termux-main/ stable main
+deb https://mirrors.cernet.edu.cn/termux/apt/termux-root/ root stable
+deb https://mirrors.cernet.edu.cn/termux/apt/termux-x11/ x11 main
+' > $PREFIX/etc/apt/sources.list
+else
+  echo '
+# The termux repository
+deb https://packages.termux.dev/apt/termux-main/ stable main
+deb https://packages.termux.dev/apt/termux-root/ root stable
+deb https://packages.termux.dev/apt/termux-x11/ x11 main
+' > $PREFIX/etc/apt/sources.list
+fi
+log.info "正在更新 软件源列表"
+apt -y update
+log.info "更新完成"
+Package=("tar" "gzip" "xz-utils" "unzip" "wget" "curl" "pv" "git" "jq" "proot" "neofetch" "ncurses-utils")
+for PKG in ${Package[@]}
+do
+  if ! dpkg -s ${PKG} > /dev/null 2>&1
+  then
+    log.info "正在安装 ${PKG}"
+    until apt install -y ${PKG}
+    do
+      log.warn "安装失败 3秒后重试"
+      sleep 3s
+    done
+    log.success "安装成功"
+  fi
+done
+
+log.info "正在克隆 AF-Proot-Tool"
+if gitCR clone ArcticFox520/AF-Proot-Tool $HOME/.afpt
+then
+  log.info "克隆成功"
+else
+  log.info "克隆失败"
+  exit 1
+fi
+ln -sf $HOME/.afpt/start $PREFIX/bin/afpt

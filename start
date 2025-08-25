@@ -1,0 +1,236 @@
+#!/bin/env bash
+black="\e[30m"
+red="\033[31m"
+green="\033[32m"
+yellow="\033[33m"
+blue="\033[34m"
+purple="\033[35m"
+cyan="\033[36m"
+white="\033[37m"
+background="\033[0m"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+RealPath=$(readlink -f "${BASH_SOURCE[0]}")
+Path=$(dirname "${RealPath}")
+
+function log.info() {
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${BLUE}[INFO][${timestamp}] - $1${NC}"
+}
+function log.success() {
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${GREEN}[SUCCESS][${timestamp}] - $1${NC}"
+}
+function log.warn() {
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${YELLOW}[WARN][${timestamp}] - $1${NC}"
+}
+function log.error() {
+  local timestamp=$(date +"%H:%M:%S")
+  echo -e "${RED}[ERROR][${timestamp}] - $1${NC}" >&2
+}
+
+declare -A DistroNames
+DistroNames=(
+  ["alpine"]="Alpine Linux"
+  ["archlinux"]="Arch Linux"
+  ["debian"]="Debian"
+  ["ubuntu"]="Ubuntu"
+  ["kali"]="Kali Linux"
+  ["mint"]="Mint Linux"
+  ["rockylinux"]="Rocky Linux"
+  ["centos"]="CentOS-Stream"
+  ["fedora"]="Fedora"
+  ["opensuse"]="OpenSUSE"
+)
+
+declare -A DistroVersions
+DistroVersions=(
+  ["alpine"]="3.19 3.20 3.21 3.22 edge"
+  ["archlinux"]="current"
+  ["debian"]="bookworm bullseye trixie"
+  ["ubuntu"]="jammy noble oracular plucky"
+  ["kali"]="current"
+  ["mint"]="ulyana ulyssa uma una vanessa vera victoria virginia wilma"
+  ["rockylinux"]="8 9"
+  ["centos"]="9-Stream"
+  ["fedora"]="40 41 42"
+  ["opensuse"]="15.5 15.6 tumbleweed"
+)
+
+function getArchitecture() {
+  local machine=$(uname -m)
+  case $machine in
+    x86_64|x64) echo "amd64" ;;
+    aarch64|arm64) echo "arm64" ;;
+    *) log.error "不支持的架构: ${machine}"; log.warn "请截图以便于开发者适配"; exit 1 ;;
+  esac
+}
+
+function showHelp() {
+
+echo -e "${white}========= ${blue}使用说明 ${white}=========${background}
+${yellow}用法：${blue}afpt ${cyan}<${green}命令${cyan}> ${cyan}<${green}系统${cyan}> ${cyan}[${green}版本${cyan}]${background}
+
+${cyan}命令:${background}
+  ${green}login      ${cyan}进入容器${background}
+  ${green}install    ${cyan}安装容器${background}
+  ${green}remove     ${cyan}移除容器${background}
+  ${green}list       ${cyan}列出支持的发行版${background}
+             ${cyan}使用 afpt list <发行版> 查看对应版本${background}
+  ${green}help       ${cyan}显示本帮助信息${background}
+
+${white}============================="
+}
+
+function CheckLinuxVersion() {
+  local LX="$1"
+  local VN="$2"
+  
+  if [ -z "${DistroVersions[$LX]}" ]; then
+    log.error "${LX} [系统指定错误]"
+    return 1
+  fi
+  
+  if ! echo "${DistroVersions[$LX]}" | grep -qw "$VN"; then
+    log.error " ${VN} [版本指定错误]"
+    return 1
+  fi
+  
+  return 0
+}
+
+case "$1" in
+  l|login|--login)
+    if [ $# -lt 2 ]; then
+      log.error "[参数错误]"
+      showHelp
+      exit 1
+    fi
+    
+    Linux="$(echo "$2" | tr 'A-Z' 'a-z')"
+    Version="$(echo "$3" | tr 'A-Z' 'a-z')"
+    
+    if ! CheckLinuxVersion "$Linux" "$Version"; then
+      exit 1
+    fi
+    
+    if [ -d "$HOME/AF-Proot/${Linux}-${Version}" ]; then
+      source "$HOME/AF-Proot/Start/${Linux}-${Version}"
+    else
+      log.error "${Linux}-${Version} [未安装]"
+      exit 1
+    fi
+    ;;
+  
+  i|install|--install)
+    if [ $# -lt 2 ]; then
+      log.error "[参数错误]"
+      showHelp
+      exit 1
+    fi
+    
+    Linux="$(echo "$2" | tr 'A-Z' 'a-z')"
+    Version="$(echo "$3" | tr 'A-Z' 'a-z')"
+    Arch="$(getArchitecture)"
+    
+    if ! CheckLinuxVersion "$Linux" "$Version"; then
+      exit 1
+    fi
+    
+    if [ -d "$HOME/AF-Proot/${Linux}-${Version}" ]; then
+      log.error "${Linux}-${Version} [已安装]"
+      exit 1
+    fi
+    
+    log.info "准备安装: ${Linux}-${Version}"
+    echo "{\"Linux\": \"${Linux}\",\"Version\": \"${Version}\",\"Arch\": \"${Arch}\",\"Variant\": \"default\" }" > "$Path/config.json"
+    log.success "配置文件已生成，准备安装"
+    jq . $Path/config.json > "$Path/config.json"
+    bash ${Path}/run
+    ;;
+  
+  r|rm|remove|--remove)
+    if [ $# -lt 2 ]; then
+      log.error "[无参数]"
+      showHelp
+      exit 1
+    fi
+    
+    Linux="$(echo "$2" | tr 'A-Z' 'a-z')"
+    Version="$(echo "$3" | tr 'A-Z' 'a-z')"
+    
+    if ! CheckLinuxVersion "$Linux" "$Version"; then
+      exit 1
+    fi
+
+    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+      log.info "取消删除操作"
+      exit 0
+    fi
+    
+    if [ -d "$HOME/AF-Proot/${Linux}-${Version}" ]
+    then
+      read -p "确定要删除容器 ${Linux}-${Version} 吗? [y/N] " confirm
+      case ${confirm} in
+        y)
+          log.info "正在移除 ${Linux}-${Version}"
+          rm -rf "$HOME/AF-Proot/${Linux}-${Version}"
+          rm -f "$HOME/AF-Proot/Start/${Linux}-${Version}"
+          log.success "移除成功"
+          ;;
+        *)
+          log.info "退出"
+          exit
+      esac
+    else
+      log.error "${Linux}-${Version} [未安装]"
+      exit 1
+    fi
+    ;;
+  
+  ls|list|--list)
+    if [ $# -eq 1 ]; then
+      echo -e "==== 支持的发行版 ===="
+      for distro in "${!DistroNames[@]}"; do
+        echo -e "  ${blue}[${green}*${blue}] ${cyan}${DistroNames[$distro]}${background} <简写: ${distro}>"
+      done
+      echo -e "======================="
+      echo -e "提示：使用 afpt list <发行版简写> 查看支持的版本"
+      echo
+
+    else
+      target_distro=$(echo "$2" | tr 'A-Z' 'a-z')
+      if [ -z "${DistroNames[$target_distro]}" ]; then
+        log.error "不支持的发行版: ${target_distro}"
+        exit 1
+      fi
+      # 显示版本信息
+      echo -e "==== ${DistroNames[$target_distro]} 支持的版本 ===="
+      for target_distro in ${DistroVersions[$target_distro]}
+      do
+        echo -e "  ${blue}[${green}*${blue}] ${cyan}${target_distro}${background}"
+      done
+      echo -e "======================="
+      echo
+    fi
+    ;;
+  
+  help|--help)
+    showHelp
+    ;;
+  
+  *)
+    if [ -n "$1" ]; then
+      log.error "未知参数: $1"
+    else
+      log.error "[无参数]"
+    fi
+    showHelp
+    exit 1
+    ;;
+esac

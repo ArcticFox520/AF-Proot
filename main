@@ -82,7 +82,6 @@ command+=" -r $HOME/AF-Proot/${FOLDER}"
 command+=" -b /dev"
 command+=" -b /proc"
 command+=" -b $HOME/AF-Proot/${FOLDER}/root:/dev/shm"
-command+=" -b /sdcard:/sdcard"
 ProcFile=(
 "buddyinfo"
 "cgroups"
