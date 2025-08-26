@@ -142,14 +142,16 @@ ${REPO} 使用协议
 10.对于本项目的最终所有权和解释权归本项目的唯一作者(ArcticFox520)（https://github.com/ArcticFox520）所有。
 最后，感谢您对 ${REPO} 项目的信任与支持!
 FOX
-while true; do
-  read -p "您是否同意本协议 [Y/N] " YN
-  case "${YN,,}" in
-    y) break ;;
-    n) echo -e ${blue}[${red}*${blue}] ${cyan}已退出${background} ; exit 0 ;;
-    *) echo -e ${blue}[${yellow}*${blue}] ${cyan}无效输入${background} ;;
-  esac
-done
+if [ "$1" !== "SKIP" ];then
+  while true; do
+    read -p "您是否同意本协议 [Y/N] " YN
+    case "${YN,,}" in
+      y) break ;;
+      n) echo -e ${blue}[${red}*${blue}] ${cyan}已退出${background} ; exit 0 ;;
+      *) echo -e ${blue}[${yellow}*${blue}] ${cyan}无效输入${background} ;;
+    esac
+  done
+fi
 
 if getLocation
 then
