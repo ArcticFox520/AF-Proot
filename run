@@ -32,7 +32,7 @@ then
 else
   Command="/tmp/${Linux} && rm /tmp/${Linux}"
 fi
-$HOME/AF-Proot/start-${Linux}-${Version}.sh \
+$HOME/AF-Proot/login/${Linux}-${Version} \
   "/tmp/${Linux} && rm /tmp/${Linux}"
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
@@ -42,7 +42,7 @@ width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
 echo
 echo -e ${blue}[${green}*${blue}] ${cyan}${Linux}-${Version} ${yellow}启动命令:${background}
-echo -e ${blue}[${green}*${blue}] ${purple}$HOME/AF-Proot/start-${Linux}-${Version}.sh${background}
+echo -e ${blue}[${green}*${blue}] ${purple}afpt login ${Linux} ${Version}${background}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
 echo
@@ -52,6 +52,6 @@ then
   CustomPath=${custom}
   mv ${CustomPath} $HOME/AF-Proot/${FOLDER}/tmp/custom
   chmod +x $HOME/AF-Proot/${FOLDER}/tmp/custom
-  $HOME/AF-Proot/start-${Linux}-${Version}.sh "cd /tmp && ./custom"
+  $HOME/AF-Proot/login/${Linux}-${Version} "cd /tmp && ./custom"
 fi
-$HOME/AF-Proot/start-${Linux}-${Version}.sh
+$HOME/AF-Proot/login/${Linux}-${Version}
