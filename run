@@ -32,8 +32,7 @@ then
 else
   Command="/tmp/${Linux} && rm /tmp/${Linux}"
 fi
-$HOME/AF-Proot/login/${Linux}-${Version} \
-  "/tmp/${Linux} && rm /tmp/${Linux}"
+$HOME/AF-Proot/login/${Linux}-${Version} ${Command}
 width=$(tput cols 2>/dev/null)
 printf "%0.s-" $(seq 1 $width)
 echo

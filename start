@@ -120,7 +120,7 @@ case "$1" in
     fi
     
     if [ -d "$HOME/AF-Proot/${Linux}-${Version}" ]; then
-      source "$HOME/AF-Proot/Start/${Linux}-${Version}"
+      source "$HOME/AF-Proot/login/${Linux}-${Version}"
     else
       log.error "${Linux}-${Version} [未安装]"
       exit 1
@@ -178,7 +178,7 @@ case "$1" in
         y)
           log.info "正在移除 ${Linux}-${Version}"
           rm -rf "$HOME/AF-Proot/${Linux}-${Version}"
-          rm -f "$HOME/AF-Proot/Start/${Linux}-${Version}"
+          rm -f "$HOME/AF-Proot/login/${Linux}-${Version}"
           log.success "移除成功"
           ;;
         *)

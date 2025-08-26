@@ -181,6 +181,6 @@ else
     exec ${command} -c "\$@"
 fi
 FOX
-chmod +x ${Linux}-${Version}
+chmod +x ${Linux}-${Version}.sh
 mv ${Linux}-${Version}.sh $HOME/AF-Proot/login/${Linux}-${Version}
 log.info "容器构建完成"
