@@ -83,6 +83,7 @@ ${cyan}命令:${background}
   ${green}list       ${cyan}列出支持的发行版${background}
              ${cyan}使用 afpt list <发行版> 查看对应版本${background}
   ${green}help       ${cyan}显示本帮助信息${background}
+  ${green}update     ${cyan}更新AF-Proot${background}
 
 ${white}============================="
 }
@@ -221,7 +222,14 @@ case "$1" in
   help|--help)
     showHelp
     ;;
-  
+  up|update|--update)
+    cd ${Path}
+    log.info "正在更新"
+    git pull
+    ln -sf ${Path}/start $PREFIX/bin/afpt
+    chmod +x $PREFIX/bin/afpt
+    log.info "更新完成"
+    ;;
   *)
     if [ -n "$1" ]
     then
