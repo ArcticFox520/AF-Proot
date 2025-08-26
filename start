@@ -149,7 +149,6 @@ case "$1" in
     
     log.info "准备安装: ${Linux}-${Version}"
     echo "{\"Linux\": \"${Linux}\",\"Version\": \"${Version}\",\"Arch\": \"${Arch}\",\"Variant\": \"default\" }" | jq . > "$Path/config.json"
-    log.success "配置文件已生成，准备安装"    
     bash ${Path}/run
     ;;
   

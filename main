@@ -166,14 +166,13 @@ else
   command+=" /bin/bash --login"
 fi
 
-echo ${command} > login-${Linux}-${Version}.sh
 touch $HOME/AF-Proot/${FOLDER}/root/.hushlogin
 echo cat /etc/issue.net >> $HOME/AF-Proot/${FOLDER}/etc/profile
 if [ ! -d $HOME/AF-Proot/login ]
 then
   mkdir -p $HOME/AF-Proot/login
 fi
-cat > ${Linux}-${Version} <<- FOX
+cat > ${Linux}-${Version}.sh <<- FOX
 unset LD_PRELOAD
 if [ -z "\$1" ]
 then
@@ -183,5 +182,5 @@ else
 fi
 FOX
 chmod +x ${Linux}-${Version}
-mv ${Linux}-${Version} $HOME/AF-Proot/login/${Linux}-${Version}
+mv ${Linux}-${Version}.sh $HOME/AF-Proot/login/${Linux}-${Version}
 log.info "容器构建完成"

@@ -186,7 +186,7 @@ do
 done
 
 log.info "正在克隆 AF-Proot"
-if gitCR clone ArcticFox520/AF-Proot $HOME/.afpt
+if gitCR clone main ArcticFox520/AF-Proot $HOME/.afpt
 then
   log.info "克隆成功"
 else
@@ -195,3 +195,4 @@ else
 fi
 ln -sf $HOME/.afpt/start $PREFIX/bin/afpt
 chmod +x $PREFIX/bin/afpt
+afpt help
